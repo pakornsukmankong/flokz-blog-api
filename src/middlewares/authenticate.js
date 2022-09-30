@@ -18,7 +18,6 @@ module.exports = async (req, res, next) => {
     const user = await User.findOne({
       where: { id: payload.id },
       attributes: { exclude: 'password' },
-      include: [Social, Blog],
     })
     if (!user) {
       throw new AppError('unauthenticated', 401)
