@@ -1,6 +1,6 @@
 const fs = require('fs')
 const cloudinary = require('../utils/cloudinary')
-const { User, Social, Blog } = require('../models')
+const { User, Social, Blog, Categories } = require('../models')
 const AppError = require('../utils/appError')
 
 exports.updateUser = async (req, res, next) => {
@@ -17,9 +17,6 @@ exports.updateUser = async (req, res, next) => {
       fs.unlinkSync(file.path)
     }
 
-    if (!file) {
-      throw new AppError('file not found', 400)
-    }
     await User.update({ profileImage }, { where: { id: req.user.id } })
     await User.update(
       { username, email, description },
@@ -33,10 +30,26 @@ exports.updateUser = async (req, res, next) => {
     const user = await User.findOne({
       where: { id: req.user.id },
       attributes: { exclude: 'password' },
-      include: Social,
-      Blog,
+      include: [Social, { model: Blog, include: Categories }],
     })
 
+    res.status(200).json({ user })
+  } catch (err) {
+    next(err)
+  }
+}
+
+exports.getUser = async (req, res, next) => {
+  try {
+    const id = +req.params.id
+    const user = await User.findOne({
+      where: { id },
+      attributes: { exclude: 'password' },
+      include: [Social, { model: Blog, include: Categories }],
+    })
+    if (!user) {
+      throw new AppError('user not found', 400)
+    }
     res.status(200).json({ user })
   } catch (err) {
     next(err)
