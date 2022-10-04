@@ -1,6 +1,6 @@
 const fs = require('fs')
 const cloudinary = require('../utils/cloudinary')
-const { User, Social, Blog, Categories } = require('../models')
+const { User, Social, Blog, Categories, Like, Comment } = require('../models')
 const AppError = require('../utils/appError')
 
 exports.updateUser = async (req, res, next) => {
@@ -45,7 +45,7 @@ exports.getUser = async (req, res, next) => {
     const user = await User.findOne({
       where: { id },
       attributes: { exclude: 'password' },
-      include: [Social, { model: Blog, include: Categories }],
+      include: [Social, { model: Blog, include: [Categories, Like, Comment] }],
     })
     if (!user) {
       throw new AppError('user not found', 400)

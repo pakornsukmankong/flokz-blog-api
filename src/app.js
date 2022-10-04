@@ -10,7 +10,7 @@ const error = require('./middlewares/error')
 const authRoute = require('./routes/authRoute')
 const userRoute = require('./routes/userRoute')
 const blogRoute = require('./routes/blogRoute')
-const authenticate = require('./middlewares/authenticate')
+const categoryRoute = require('./routes/categoryRoute')
 
 const app = express()
 
@@ -23,8 +23,9 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
 app.use('/auth', authRoute)
-app.use('/users', authenticate, userRoute)
-app.use('/blogs', authenticate, blogRoute)
+app.use('/users', userRoute)
+app.use('/blogs', blogRoute)
+app.use('/categories', categoryRoute)
 
 app.use(notFound)
 app.use(error)
