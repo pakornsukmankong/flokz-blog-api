@@ -45,7 +45,14 @@ exports.getUser = async (req, res, next) => {
     const user = await User.findOne({
       where: { id },
       attributes: { exclude: 'password' },
-      include: [Social, { model: Blog, include: [Categories, Like, Comment] }],
+      include: [
+        Social,
+        {
+          model: Blog,
+          include: [Categories, Like, Comment],
+        },
+      ],
+      order: [[{ model: Blog }, 'updatedAt', 'DESC']],
     })
     if (!user) {
       throw new AppError('user not found', 400)

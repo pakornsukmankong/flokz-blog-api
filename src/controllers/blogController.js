@@ -55,7 +55,8 @@ exports.createBlog = async (req, res, next) => {
 
 exports.getAllBlogs = async (req, res, next) => {
   try {
-    const blogs = await Blog.findAll({
+    const { title } = req.query
+    let blogs = await Blog.findAll({
       attributes: { exclude: ['userId', 'categoryId'] },
       include: [
         { model: User, attributes: { exclude: 'password' } },
@@ -65,6 +66,14 @@ exports.getAllBlogs = async (req, res, next) => {
       ],
       order: [['updatedAt', 'DESC']],
     })
+
+    if (title) {
+      blogs = blogs.filter(
+        (item) =>
+          !title || item.title.toLowerCase().includes(title.toLowerCase())
+      )
+    }
+
     res.status(200).json({ blogs })
   } catch (err) {
     next(err)
@@ -81,8 +90,12 @@ exports.getOneBlog = async (req, res, next) => {
         { model: User, attributes: { exclude: 'password' } },
         Categories,
         Like,
-        Comment,
+        {
+          model: Comment,
+          include: { model: User, attributes: { exclude: 'password' } },
+        },
       ],
+      order: [[{ model: Comment }, 'updatedAt', 'DESC']],
     })
     res.status(200).json({ blog })
   } catch (err) {
