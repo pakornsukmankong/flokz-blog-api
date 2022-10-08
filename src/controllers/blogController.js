@@ -56,6 +56,9 @@ exports.createBlog = async (req, res, next) => {
 exports.getAllBlogs = async (req, res, next) => {
   try {
     const { title } = req.query
+    const limit = +req.query.limit
+    const page = +req.query.page
+
     let blogs = await Blog.findAll({
       attributes: { exclude: ['userId', 'categoryId'] },
       include: [
@@ -65,6 +68,8 @@ exports.getAllBlogs = async (req, res, next) => {
         Comment,
       ],
       order: [['updatedAt', 'DESC']],
+      limit: limit,
+      offset: page * limit,
     })
 
     if (title) {
@@ -152,6 +157,7 @@ exports.deleteBlog = async (req, res, next) => {
     t = await sequelize.transaction()
 
     const blog = await Blog.findOne({ where: { id: req.params.id } })
+
     if (!blog) {
       throw new AppError('cannot find blog', 400)
     }
